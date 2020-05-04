@@ -240,10 +240,16 @@ class SubscriptionBuilder
         if (! isset($payload['addOns']['add'])) {
             $payload['addOns']['add'] = [];
         }
-
-        $payload['addOns']['add'][] = [
-            'inheritedFromId' => $this->addOn,
-        ];
+        $addOns = $this->addOn;
+        if( !is_array($this->addOn) ) {
+            $addOns = [$this->addOn];
+        }
+        
+        foreach($addOns as $addOn) {
+            $payload['addOns']['add'][] = [
+                'inheritedFromId' => $addOn,
+            ];
+        }
 
         return $payload;
     }
