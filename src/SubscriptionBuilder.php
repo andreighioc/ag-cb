@@ -50,6 +50,13 @@ class SubscriptionBuilder
      * @var string|null
      */
     protected $coupon;
+    
+    /**
+     * The add on being applied to the customer.
+     *
+     * @var string|null
+     */
+    protected $addOn;
 
     /**
      * Create a new subscription builder instance.
@@ -105,6 +112,20 @@ class SubscriptionBuilder
     }
 
     /**
+     * The add on to apply to a new subscription.
+     *
+     * @param string $addOn
+     *
+     * @return $this
+     */
+    public function withAddOn($addOn)
+    {
+        $this->addOn = $addOn;
+
+        return $this;
+    }
+    
+    /**
      * Add a new Braintree subscription to the model.
      *
      * @param  array  $options
@@ -133,6 +154,10 @@ class SubscriptionBuilder
 
         if ($this->coupon) {
             $payload = $this->addCouponToPayload($payload);
+        }
+        
+        if ($this->addOn) {
+            $payload = $this->addAddOnToPayload($payload);
         }
 
         $response = BraintreeSubscription::create($payload);
@@ -204,6 +229,25 @@ class SubscriptionBuilder
         return $payload;
     }
 
+    /**
+     * Add the addon to the Braintree payload.
+     * @param array $payload
+     *
+     * @return array
+     */
+    protected function addAddOnToPayload(array $payload)
+    {
+        if (! isset($payload['addOns']['add'])) {
+            $payload['addOns']['add'] = [];
+        }
+
+        $payload['addOns']['add'][] = [
+            'inheritedFromId' => $this->addOn,
+        ];
+
+        return $payload;
+    }
+    
     /**
      * Get the Braintree customer instance for the current user and token.
      *
